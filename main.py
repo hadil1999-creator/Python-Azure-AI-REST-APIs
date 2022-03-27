@@ -3,14 +3,11 @@ from pydantic import BaseModel
 import time
 import asyncio
 import utils
+import creds
 
 app = FastAPI()
 
-headers = {
-    "Ocp-Apim-Subscription-Key": '7b27544096db4f64a5d9e64963303ab0',
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-}
+headers = creds.headers
 
 
 class Model(BaseModel):
