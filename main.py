@@ -3,7 +3,6 @@ from pydantic import BaseModel
 import time
 import asyncio
 import utils
-import creds
 
 app = FastAPI()
 
