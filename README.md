@@ -8,7 +8,9 @@ This project is a simple demonstration of how to deploy a FastAPI model on Micro
 
 ---
 
-## https://github.com/ovokpus/Python-AI-REST-APIs/blob/454fd1040f9ccabf2b891973bfe2c3096f02fbfd/images/azure-cognitive-services.png
+<div align="right">
+<img src="ps://github.com/ovokpus/Python-AI-REST-APIs/blob/454fd1040f9ccabf2b891973bfe2c3096f02fbfd/images/azure-cognitive-services.png" alt="ovokpus">
+</div>
 
 ### Deploying REST API on Microsoft Azure
 
