@@ -1,4 +1,4 @@
-# Python-AI-REST-APIs
+# Python-Azure-AI-REST-APIs
 
 ---
 
