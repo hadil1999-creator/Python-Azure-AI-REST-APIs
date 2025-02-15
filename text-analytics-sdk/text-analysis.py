@@ -8,62 +8,66 @@ from azure.ai.textanalytics import TextAnalyticsClient
 
 def main():
     try:
-        # Get Configuration Settings
+        # Load Configuration Settings
         load_dotenv()
         cog_endpoint = os.getenv('COG_SERVICE_ENDPOINT')
         cog_key = os.getenv('COG_SERVICE_KEY')
 
-        # Create client using endpoint and key
+        # Create Text Analytics client
         credential = AzureKeyCredential(cog_key)
-        cog_client = TextAnalyticsClient(
-            endpoint=cog_endpoint, credential=credential)
+        cog_client = TextAnalyticsClient(endpoint=cog_endpoint, credential=credential)
 
-        # Analyze each text file in the reviews folder
+        # Read all text files from the reviews folder
         reviews_folder = 'reviews'
+        documents = []
+
         for file_name in os.listdir(reviews_folder):
-            # Read the file contents
-            print('\n-------------\n' + file_name)
-            text = open(os.path.join(reviews_folder, file_name),
-                        encoding='utf8').read()
-            print('\n' + text)
+            file_path = os.path.join(reviews_folder, file_name)
+            with open(file_path, encoding='utf8') as f:
+                text = f.read()
+                documents.append({"id": file_name, "text": text})  # Each file is a document
 
-            # Get language
-            detectedLanguage = cog_client.detect_language(documents=[text])[0]
-            print('\nLanguage: {}'.format(
-                detectedLanguage.primary_language.name))
+        if not documents:
+            print("No documents found in the reviews folder.")
+            exit()
 
-            # Get sentiment
-            sentimentAnalysis = cog_client.analyze_sentiment(documents=[text])[
-                0]
-            print("\nSentiment: {}".format(sentimentAnalysis.sentiment))
+        # Batch API Calls
+        print("\nProcessing batch request...\n")
 
-            # Get key phrases
-            phrases = cog_client.extract_key_phrases(documents=[text])[
-                0].key_phrases
-            if len(phrases) > 0:
-                print("\nKey Phrases:")
-                for phrase in phrases:
-                    print('\t{}'.format(phrase))
+        # Language Detection
+        language_results = cog_client.detect_language(documents=documents)
+        for doc, result in zip(documents, language_results):
+            print(f"\nFile: {doc['id']}\nLanguage: {result.primary_language.name}")
 
-            # Get entities
-            entities = cog_client.recognize_entities(documents=[text])[
-                0].entities
-            if len(entities) > 0:
-                print("\nEntities")
-                for entity in entities:
-                    print('\t{} ({})'.format(entity.text, entity.category))
+        # Sentiment Analysis
+        sentiment_results = cog_client.analyze_sentiment(documents=documents)
+        for doc, result in zip(documents, sentiment_results):
+            print(f"\nFile: {doc['id']}\nSentiment: {result.sentiment}")
 
-            # Get linked entities
-            entities = cog_client.recognize_linked_entities(documents=[text])[
-                0].entities
-            if len(entities) > 0:
-                print("\nLinks")
-                for linked_entity in entities:
-                    print('\t{} ({})'.format(
-                        linked_entity.name, linked_entity.url))
+        # Key Phrase Extraction
+        key_phrase_results = cog_client.extract_key_phrases(documents=documents)
+        for doc, result in zip(documents, key_phrase_results):
+            if result.key_phrases:
+                print(f"\nFile: {doc['id']}\nKey Phrases: {', '.join(result.key_phrases)}")
+
+        # Named Entity Recognition
+        entity_results = cog_client.recognize_entities(documents=documents)
+        for doc, result in zip(documents, entity_results):
+            if result.entities:
+                print(f"\nFile: {doc['id']}\nEntities:")
+                for entity in result.entities:
+                    print(f"\t{entity.text} ({entity.category})")
+
+        # Linked Entity Recognition
+        linked_entity_results = cog_client.recognize_linked_entities(documents=documents)
+        for doc, result in zip(documents, linked_entity_results):
+            if result.entities:
+                print(f"\nFile: {doc['id']}\nLinked Entities:")
+                for entity in result.entities:
+                    print(f"\t{entity.name} ({entity.url})")
 
     except Exception as ex:
-        print(ex)
+        print(f"Error: {ex}")
 
 
 if __name__ == "__main__":
