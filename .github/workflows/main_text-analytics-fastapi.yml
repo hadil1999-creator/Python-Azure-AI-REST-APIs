@@ -23,6 +23,11 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      - name: Install system dependencies
+        run: |
+              sudo apt-get update
+              sudo apt-get install -y python3-dev build-essential libffi-dev \
+                libssl-dev libjpeg-dev zlib1g-dev libpng-dev libwebp-dev
     
       - name: Install dependencies
         run: |
